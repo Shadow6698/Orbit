@@ -1,0 +1,178 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Criação da GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.CoreGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.Text = "Menu de Órbita"
+titleLabel.Parent = mainFrame
+
+-- Lista de players
+local playerList = Instance.new("ScrollingFrame")
+playerList.Size = UDim2.new(1, 0, 0, 150)
+playerList.Position = UDim2.new(0, 0, 0, 30)
+playerList.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+playerList.Parent = mainFrame
+
+local updateButton = Instance.new("TextButton")
+updateButton.Size = UDim2.new(1, 0, 0, 30)
+updateButton.Position = UDim2.new(0, 0, 0, 180)
+updateButton.Text = "Atualizar Lista"
+updateButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+updateButton.TextColor3 = Color3.new(1, 1, 1)
+updateButton.Parent = mainFrame
+
+-- Caixa para ajustar a velocidade
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0, 100, 0, 25)
+speedLabel.Position = UDim2.new(0, 0, 0, 220)
+speedLabel.BackgroundTransparency = 1
+speedLabel.TextColor3 = Color3.new(1, 1, 1)
+speedLabel.Text = "Velocidade:"
+speedLabel.Parent = mainFrame
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0, 100, 0, 25)
+speedBox.Position = UDim2.new(0, 110, 0, 220)
+speedBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.TextColor3 = Color3.new(0, 0, 0)
+speedBox.Text = "2"
+speedBox.Parent = mainFrame
+
+-- Caixa para ajustar a altura
+local heightLabel = Instance.new("TextLabel")
+heightLabel.Size = UDim2.new(0, 100, 0, 25)
+heightLabel.Position = UDim2.new(0, 0, 0, 250)
+heightLabel.BackgroundTransparency = 1
+heightLabel.TextColor3 = Color3.new(1, 1, 1)
+heightLabel.Text = "Altura:"
+heightLabel.Parent = mainFrame
+
+local heightBox = Instance.new("TextBox")
+heightBox.Size = UDim2.new(0, 100, 0, 25)
+heightBox.Position = UDim2.new(0, 110, 0, 250)
+heightBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+heightBox.TextColor3 = Color3.new(0, 0, 0)
+heightBox.Text = "2"
+heightBox.Parent = mainFrame
+
+-- Caixa para ajustar o raio (distância)
+local radiusLabel = Instance.new("TextLabel")
+radiusLabel.Size = UDim2.new(0, 100, 0, 25)
+radiusLabel.Position = UDim2.new(0, 0, 0, 280)
+radiusLabel.BackgroundTransparency = 1
+radiusLabel.TextColor3 = Color3.new(1, 1, 1)
+radiusLabel.Text = "Raio:"
+radiusLabel.Parent = mainFrame
+
+local radiusBox = Instance.new("TextBox")
+radiusBox.Size = UDim2.new(0, 100, 0, 25)
+radiusBox.Position = UDim2.new(0, 110, 0, 280)
+radiusBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+radiusBox.TextColor3 = Color3.new(0, 0, 0)
+radiusBox.Text = "5"
+radiusBox.Parent = mainFrame
+
+-- Botão para ativar/desativar a órbita
+local toggleOrbitButton = Instance.new("TextButton")
+toggleOrbitButton.Size = UDim2.new(1, 0, 0, 30)
+toggleOrbitButton.Position = UDim2.new(0, 0, 0, 320)
+toggleOrbitButton.Text = "Ativar Órbita"
+toggleOrbitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+toggleOrbitButton.TextColor3 = Color3.new(1, 1, 1)
+toggleOrbitButton.Parent = mainFrame
+
+-- Variáveis de controle
+local orbiting = false
+local targetPlayer = nil
+local orbitSpeed = 2
+local orbitHeight = 2
+local orbitRadius = 5
+local angle = 0
+
+-- Função para atualizar a lista de players
+local function updatePlayerList()
+    -- Remove os botões antigos
+    for _, child in ipairs(playerList:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    local yPos = 0
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 30)
+            btn.Position = UDim2.new(0, 0, 0, yPos)
+            btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+            btn.TextColor3 = Color3.new(1, 1, 1)
+            btn.Text = player.Name
+            btn.Parent = playerList
+
+            btn.MouseButton1Click:Connect(function()
+                targetPlayer = player
+                titleLabel.Text = "Órbita: " .. player.Name
+            end)
+            yPos = yPos + 30
+        end
+    end
+    playerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
+end
+
+updateButton.MouseButton1Click:Connect(updatePlayerList)
+updatePlayerList()
+
+-- Botão para ligar/desligar a órbita
+toggleOrbitButton.MouseButton1Click:Connect(function()
+    if orbiting then
+        orbiting = false
+        toggleOrbitButton.Text = "Ativar Órbita"
+        toggleOrbitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    else
+        -- Atualiza os valores a partir das caixas de texto
+        orbitSpeed = tonumber(speedBox.Text) or 2
+        orbitHeight = tonumber(heightBox.Text) or 2
+        orbitRadius = tonumber(radiusBox.Text) or 5
+
+        if targetPlayer then
+            orbiting = true
+            toggleOrbitButton.Text = "Desativar Órbita"
+            toggleOrbitButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        end
+    end
+end)
+
+-- Loop para orbitar o personagem do LocalPlayer em torno do targetPlayer
+RunService.RenderStepped:Connect(function(deltaTime)
+    if orbiting and targetPlayer and targetPlayer.Character and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if targetHRP then
+            angle = angle + orbitSpeed * deltaTime
+            local targetPos = targetHRP.Position
+            local newX = targetPos.X + math.cos(angle) * orbitRadius
+            local newZ = targetPos.Z + math.sin(angle) * orbitRadius
+            local newY = targetPos.Y + orbitHeight
+
+            local localHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if localHRP then
+                localHRP.CFrame = CFrame.new(newX, newY, newZ)
+            end
+        end
+    end
+end)
